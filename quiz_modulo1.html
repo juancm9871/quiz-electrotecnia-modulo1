@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Arcade Quiz - Electrotecnia Módulo 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'VT323', monospace;
+            background-color: #0b0c10;
+            color: #66fcf1;
+            background-image: 
+                radial-gradient(#1f2833 15%, transparent 16%),
+                radial-gradient(#1f2833 15%, transparent 16%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+        .font-arcade { font-family: 'Press Start 2P', cursive; }
+        .neon-border {
+            box-shadow: 0 0 10px #66fcf1, inset 0 0 10px #66fcf1;
+            border: 3px solid #66fcf1;
+        }
+        .neon-border-pink {
+            box-shadow: 0 0 10px #ff007f, inset 0 0 10px #ff007f;
+            border: 3px solid #ff007f;
+        }
+        .neon-text-green { text-shadow: 0 0 8px #4ecc2b; }
+        .neon-text-pink { text-shadow: 0 0 8px #ff007f; }
+        .arcade-btn {
+            transition: all 0.1s ease;
+            position: relative;
+            top: 0;
+            box-shadow: 0 6px 0 #1f2833;
+        }
+        .arcade-btn:active { top: 4px; box-shadow: 0 2px 0 #1f2833; }
+        .crt::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%), linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
+            z-index: 20;
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0b0c10; }
+        ::-webkit-scrollbar-thumb { background: #45a29e; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-3 sm:p-6 crt relative overflow-x-hidden">
+
+    <header class="w-full max-w-4xl flex justify-between items-center mb-4 z-30">
+        <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-bolt text-yellow-400 text-2xl animate-pulse"></i>
+            <span class="font-arcade text-xs sm:text-sm text-yellow-400">MEDIA TÉCNICA IoT - ITM</span>
+        </div>
+        <button onclick="openTeacherModal()" class="bg-purple-900 border-2 border-purple-400 hover:bg-purple-800 text-purple-200 px-3 py-1 rounded text-xs font-arcade flex items-center gap-2">
+            <i class="fa-solid fa-user-ninja"></i> DOCENTE
+        </button>
+    </header>
+
+    <main class="w-full max-w-4xl bg-gray-900/90 rounded-2xl p-4 sm:p-8 neon-border relative z-10 backdrop-blur-md">
+
+        <!-- PANTALLA 1: REGISTRO -->
+        <section id="screen-login" class="space-y-6">
+            <div class="text-center space-y-2">
+                <h1 class="font-arcade text-xl sm:text-2xl text-yellow-400 leading-relaxed neon-text-pink">ELECTRO-QUEST 8-BIT</h1>
+                <p class="text-xl sm:text-2xl text-cyan-300">Módulo 1: Electrotecnia y Mediciones Eléctricas</p>
+                <div class="inline-block bg-cyan-950 border border-cyan-500 px-4 py-1 rounded-full text-sm text-cyan-200 mt-2">
+                    <i class="fa-solid fa-gamepad mr-2"></i> Grado Décimo - ITM Robledo
+                </div>
+            </div>
+            <form id="login-form" onsubmit="handleStartQuiz(event)" class="space-y-4 max-w-xl mx-auto bg-black/60 p-5 rounded-xl border border-gray-700">
+                <div class="space-y-1">
+                    <label class="block text-lg text-cyan-400"><i class="fa-solid fa-user text-yellow-400"></i> Nombre Completo del Estudiante *</label>
+                    <input type="text" id="std-name" required placeholder="Ej: Carlos Mario Pérez"
+                        class="w-full bg-gray-800 border-2 border-cyan-500 text-white rounded p-2 text-lg focus:outline-none focus:border-yellow-400">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="block text-lg text-cyan-400"><i class="fa-solid fa-id-card text-yellow-400"></i> Documento / TI *</label>
+                        <input type="text" id="std-id" required placeholder="Ej: 1012345678"
+                            class="w-full bg-gray-800 border-2 border-cyan-500 text-white rounded p-2 text-lg focus:outline-none focus:border-yellow-400">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-lg text-cyan-400"><i class="fa-solid fa-users text-yellow-400"></i> Grado / Grupo *</label>
+                        <select id="std-group" required class="w-full bg-gray-800 border-2 border-cyan-500 text-white rounded p-2 text-lg focus:outline-none focus:border-yellow-400">
+                            <option value="10-3">10-3 (Media Técnica)</option>
+                            <option value="10-1">10-1</option>
+                            <option value="10-2">10-2</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1 pt-2 border-t border-gray-700">
+                    <label class="block text-lg text-pink-400"><i class="fa-solid fa-user-plus text-pink-400"></i> Segundo Integrante (Opcional - Parejas)</label>
+                    <input type="text" id="std-partner" placeholder="Ej: Luisa Fernanda Gómez"
+                        class="w-full bg-gray-800 border-2 border-pink-500 text-white rounded p-2 text-lg focus:outline-none focus:border-yellow-400">
+                </div>
+                <div class="bg-yellow-900/30 border border-yellow-500/50 p-3 rounded text-yellow-300 text-base leading-snug space-y-1">
+                    <p><i class="fa-solid fa-triangle-exclamation"></i> <strong>Reglas del Juego:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 text-gray-300">
+                        <li>Son 10 preguntas. Nota aprobatoria mínima: <strong>3.0 / 5.0</strong>.</li>
+                        <li>Si obtienes menos de 3.0, tendrás <strong>máximo 2 intentos</strong>.</li>
+                        <li>Si apruebas (>=3.0), tu nota quedará registrada y no podrás repetirla.</li>
+                        <li>El orden de preguntas y opciones cambia en cada intento.</li>
+                    </ul>
+                </div>
+                <button type="submit" class="w-full arcade-btn bg-yellow-500 hover:bg-yellow-400 text-black font-arcade py-4 rounded-xl text-sm sm:text-base tracking-wider uppercase font-bold flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-play text-xl"></i> ¡INICIAR PRUEBA!
+                </button>
+            </form>
+        </section>
+
+        <!-- PANTALLA 2: JUEGO -->
+        <section id="screen-game" class="hidden space-y-6">
+            <div class="flex flex-wrap justify-between items-center bg-black/80 p-3 rounded-xl border border-cyan-500/50 text-base sm:text-xl">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-user-astronaut text-yellow-400"></i>
+                    <span id="game-player-name" class="text-yellow-300 truncate max-w-[180px]">Jugador</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-cyan-400"><i class="fa-solid fa-clock"></i> <span id="game-timer">00:00</span></span>
+                    <span class="text-pink-400"><i class="fa-solid fa-trophy"></i> Q: <span id="game-progress">1/10</span></span>
+                </div>
+            </div>
+            <div class="w-full bg-gray-800 rounded-full h-4 overflow-hidden border border-gray-600">
+                <div id="game-progress-bar" class="bg-gradient-to-r from-yellow-500 to-green-400 h-full w-0 transition-all duration-300"></div>
+            </div>
+            <div class="bg-black/70 p-5 sm:p-7 rounded-2xl border-2 border-cyan-400 space-y-4">
+                <div class="text-yellow-400 font-arcade text-xs text-right" id="question-number-tag">PREGUNTA 01</div>
+                <h2 id="question-text" class="text-2xl sm:text-3xl text-white font-bold leading-relaxed">Cargando pregunta...</h2>
+            </div>
+            <div id="options-container" class="grid grid-cols-1 gap-3"></div>
+            <div class="flex justify-end pt-2">
+                <button id="btn-next-q" onclick="submitAnswer()" disabled class="arcade-btn bg-gray-700 text-gray-400 font-arcade px-6 py-3 rounded-lg text-xs sm:text-sm flex items-center gap-2 cursor-not-allowed">
+                    SIGUIENTE <i class="fa-solid fa-forward"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- PANTALLA 3: RESULTADOS -->
+        <section id="screen-results" class="hidden text-center space-y-6 py-4">
+            <div id="result-header" class="space-y-2"></div>
+            <div class="max-w-md mx-auto bg-black/80 p-6 rounded-2xl neon-border border-yellow-400 space-y-4 text-xl sm:text-2xl">
+                <div class="text-cyan-300 font-arcade text-xs">RESUMEN DE DESEMPEÑO</div>
+                <div class="flex justify-between items-center border-b border-gray-700 py-2">
+                    <span class="text-gray-400"><i class="fa-solid fa-circle-check text-green-400"></i> Aciertos:</span>
+                    <span id="res-correct" class="text-green-400 font-bold">0 / 10</span>
+                </div>
+                <div class="flex justify-between items-center border-b border-gray-700 py-2">
+                    <span class="text-gray-400"><i class="fa-solid fa-circle-xmark text-red-400"></i> Desaciertos:</span>
+                    <span id="res-incorrect" class="text-red-400 font-bold">0 / 10</span>
+                </div>
+                <div class="flex justify-between items-center border-b border-gray-700 py-2">
+                    <span class="text-gray-400"><i class="fa-solid fa-stopwatch text-yellow-400"></i> Tiempo empleado:</span>
+                    <span id="res-time" class="text-yellow-300 font-bold">00:00</span>
+                </div>
+                <div class="pt-2">
+                    <div class="text-sm text-gray-400 uppercase tracking-widest">Nota Definitiva</div>
+                    <div id="res-score" class="text-5xl font-arcade text-yellow-400 my-2 neon-text-pink">0.0</div>
+                    <div id="res-status-badge" class="inline-block px-4 py-1 rounded-full text-base font-bold">--</div>
+                </div>
+            </div>
+            <p class="text-gray-400 text-lg max-w-lg mx-auto bg-gray-800/50 p-3 rounded border border-gray-700">
+                <i class="fa-solid fa-lock text-yellow-400"></i> <strong>Nota de Seguridad Anti-Copia:</strong> Por políticas pedagógicas, el sistema no revela cuáles preguntas fallaste para garantizar la validez en reintentos.
+            </p>
+            <div id="results-actions" class="flex flex-wrap justify-center gap-4 pt-4"></div>
+        </section>
+    </main>
+
+    <!-- MODAL DOCENTE -->
+    <div id="modal-teacher" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border-2 border-purple-500 rounded-2xl max-w-4xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col crt">
+            <div class="flex justify-between items-center border-b border-purple-500/50 pb-3">
+                <h3 class="font-arcade text-purple-300 text-sm sm:text-base flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-yellow-400"></i> PANEL DOCENTE DE CALIFICACIONES
+                </h3>
+                <button onclick="closeTeacherModal()" class="text-gray-400 hover:text-white text-2xl font-bold">&times;</button>
+            </div>
+            <div id="teacher-auth-box" class="space-y-4 py-8 max-w-md mx-auto text-center">
+                <p class="text-xl text-gray-300">Ingresa la clave de acceso de profesor:</p>
+                <div class="flex gap-2">
+                    <input type="password" id="teacher-pass" placeholder="Clave docente"
+                        class="bg-black border border-purple-500 text-white p-2 rounded w-full text-lg focus:outline-none">
+                    <button onclick="authenticateTeacher()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded font-arcade text-xs">ENTRAR</button>
+                </div>
+                <p id="teacher-auth-error" class="text-red-400 text-sm hidden">Clave incorrecta. Intenta nuevamente.</p>
+                <p class="text-xs text-gray-500">Pista por defecto: <code class="text-purple-400">profemoncayo</code> o <code class="text-purple-400">itm10</code></p>
+            </div>
+            <div id="teacher-content-box" class="hidden space-y-4 flex-1 overflow-hidden flex flex-col">
+                <div class="flex flex-wrap justify-between items-center gap-2 bg-black/50 p-3 rounded border border-gray-800">
+                    <span class="text-gray-300 text-lg">Total de Registros: <strong id="teacher-total-count" class="text-yellow-400">0</strong></span>
+                    <div class="flex gap-2">
+                        <button onclick="exportToCSV()" class="bg-green-700 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-arcade flex items-center gap-1">
+                            <i class="fa-solid fa-file-excel"></i> EXPORTAR EXCEL/CSV
+                        </button>
+                        <button onclick="clearAllRecords()" class="bg-red-800 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-arcade flex items-center gap-1">
+                            <i class="fa-solid fa-trash"></i> BORRAR TODO
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto flex-1 bg-black/60 rounded border border-gray-800">
+                    <table class="w-full text-left text-sm text-gray-300">
+                        <thead class="bg-purple-950 text-purple-200 uppercase font-arcade text-[10px] sticky top-0">
+                            <tr>
+                                <th class="p-3">Estudiante(s)</th>
+                                <th class="p-3">Doc / ID</th>
+                                <th class="p-3">Grupo</th>
+                                <th class="p-3 text-center">Intentos</th>
+                                <th class="p-3 text-center">Aciertos</th>
+                                <th class="p-3 text-center">Nota Final</th>
+                                <th class="p-3 text-center">Estado</th>
+                                <th class="p-3 text-center">Fecha</th>
+                                <th class="p-3 text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-table-body" class="divide-y divide-gray-800"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioCtx();
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+
+                if (type === 'select') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now); osc.stop(now + 0.08);
+                } else if (type === 'next') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.setValueAtTime(600, now + 0.05);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                    osc.start(now); osc.stop(now + 0.12);
+                } else if (type === 'win') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const subOsc = audioCtx.createOscillator();
+                        const subGain = audioCtx.createGain();
+                        subOsc.type = 'square';
+                        subOsc.frequency.setValueAtTime(freq, now + (idx * 0.1));
+                        subGain.gain.setValueAtTime(0.12, now + (idx * 0.1));
+                        subGain.gain.exponentialRampToValueAtTime(0.01, now + (idx * 0.1) + 0.15);
+                        subOsc.connect(subGain);
+                        subGain.connect(audioCtx.destination);
+                        subOsc.start(now + (idx * 0.1));
+                        subOsc.stop(now + (idx * 0.1) + 0.15);
+                    });
+                } else if (type === 'fail') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now); osc.stop(now + 0.3);
+                }
+            } catch (e) { console.log('Audio error:', e); }
+        }
+    </script>
+
+    <script>
+        const originalQuestions = [
+            {
+                id: 1,
+                question: "¿Qué característica define a la corriente continua (CC)?",
+                options: [
+                    { letter: "A", text: "Cambia de dirección constantemente.", correct: false },
+                    { letter: "B", text: "Se mantiene siempre en la misma dirección.", correct: true },
+                    { letter: "C", text: "No puede utilizarse en dispositivos electrónicos.", correct: false },
+                    { letter: "D", text: "Funciona solo en sistemas industriales.", correct: false }
+                ]
+            },
+            {
+                id: 2,
+                question: "¿Dónde encontramos un ejemplo de corriente alterna (CA)?",
+                options: [
+                    { letter: "A", text: "En una pila AA.", correct: false },
+                    { letter: "B", text: "En un cargador de celular portátil.", correct: false },
+                    { letter: "C", text: "En el suministro eléctrico de una casa.", correct: true },
+                    { letter: "D", text: "En un panel solar.", correct: false }
+                ]
+            },
+            {
+                id: 3,
+                question: "¿Qué instrumento se utiliza para medir voltaje, corriente y resistencia?",
+                options: [
+                    { letter: "A", text: "Transformador.", correct: false },
+                    { letter: "B", text: "Multímetro.", correct: true },
+                    { letter: "C", text: "Contactores.", correct: false },
+                    { letter: "D", text: "Osciloscopio.", correct: false }
+                ]
+            },
+            {
+                id: 4,
+                question: "Si un estudiante mide el voltaje de una pila AA, ¿qué valor debería encontrar aproximadamente?",
+                options: [
+                    { letter: "A", text: "110 V", correct: false },
+                    { letter: "B", text: "220 V", correct: false },
+                    { letter: "C", text: "12 V", correct: false },
+                    { letter: "D", text: "1.5 V", correct: true }
+                ]
+            },
+            {
+                id: 5,
+                question: "¿Qué mide el multímetro cuando se selecciona la función de resistencia?",
+                options: [
+                    { letter: "A", text: "La capacidad de un circuito para almacenar energía.", correct: false },
+                    { letter: "B", text: "La oposición al paso de la corriente.", correct: true },
+                    { letter: "C", text: "La cantidad de electrones que circulan.", correct: false },
+                    { letter: "D", text: "La dirección de la corriente.", correct: false }
+                ]
+            },
+            {
+                id: 6,
+                question: "¿Por qué es importante diferenciar entre corriente continua y alterna?",
+                options: [
+                    { letter: "A", text: "Para decorar el banco didáctico.", correct: false },
+                    { letter: "B", text: "Para identificar el color de los cables.", correct: false },
+                    { letter: "C", text: "Para conectar los equipos de manera correcta y segura.", correct: true },
+                    { letter: "D", text: "Para aumentar el voltaje de los dispositivos.", correct: false }
+                ]
+            },
+            {
+                id: 7,
+                question: "¿Cuál de los siguientes dispositivos funciona principalmente con corriente continua (CC)?",
+                options: [
+                    { letter: "A", text: "Un televisor conectado al tomacorriente.", correct: false },
+                    { letter: "B", text: "Una nevera.", correct: false },
+                    { letter: "C", text: "Un teléfono celular.", correct: true },
+                    { letter: "D", text: "Una licuadora.", correct: false }
+                ]
+            },
+            {
+                id: 8,
+                question: "¿Qué sucede si un dispositivo diseñado para corriente continua se conecta directamente a un enchufe de corriente alterna sin adaptador?",
+                options: [
+                    { letter: "A", text: "Funciona de manera más eficiente.", correct: false },
+                    { letter: "B", text: "Puede dañarse o no funcionar correctamente.", correct: true },
+                    { letter: "C", text: "Aumenta la vida útil del dispositivo.", correct: false },
+                    { letter: "D", text: "Reduce el consumo de energía.", correct: false }
+                ]
+            },
+            {
+                id: 9,
+                question: "¿Qué representa el voltaje en un circuito eléctrico?",
+                options: [
+                    { letter: "A", text: "La fuerza que impulsa a los electrones a moverse.", correct: true },
+                    { letter: "B", text: "La cantidad de electrones que pasan por segundo.", correct: false },
+                    { letter: "C", text: "La oposición al paso de la corriente.", correct: false },
+                    { letter: "D", text: "El tamaño del conductor.", correct: false }
+                ]
+            },
+            {
+                id: 10,
+                question: "¿Qué aprendizaje clave ofrece el uso del multímetro en este módulo?",
+                options: [
+                    { letter: "A", text: "Facilita encender y apagar equipos.", correct: false },
+                    { letter: "B", text: "Permite observar y medir la electricidad de forma segura.", correct: true },
+                    { letter: "C", text: "Sustituye al cableado eléctrico.", correct: false },
+                    { letter: "D", text: "Elimina la necesidad de corriente alterna.", correct: false }
+                ]
+            }
+        ];
+
+        let currentStudent = null;
+        let activeQuestions = [];
+        let currentQuestionIdx = 0;
+        let selectedOptionIdx = null;
+        let userAnswers = [];
+        let timerInterval = null;
+        let secondsElapsed = 0;
+
+        function getDatabase() {
+            const data = localStorage.getItem('electro_quiz_mod1_db');
+            return data ? JSON.parse(data) : {};
+        }
+
+        function saveDatabase(db) {
+            localStorage.setItem('electro_quiz_mod1_db', JSON.stringify(db));
+        }
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function handleStartQuiz(e) {
+            e.preventDefault();
+            initAudio();
+            const name = document.getElementById('std-name').value.trim();
+            const docId = document.getElementById('std-id').value.trim();
+            const group = document.getElementById('std-group').value;
+            const partner = document.getElementById('std-partner').value.trim();
+            if (!name || !docId) return;
+
+            const db = getDatabase();
+            const existingRecord = db[docId];
+
+            if (existingRecord) {
+                if (existingRecord.passed) {
+                    alert(`El estudiante con TI/CC ${docId} ya APROBÓ la prueba con una nota de ${existingRecord.finalScore}. No se permiten más intentos.`);
+                    return;
+                } else if (existingRecord.attempts >= 2) {
+                    alert(`El estudiante con TI/CC ${docId} ya ha agotado sus 2 intentos permitidos (Última nota: ${existingRecord.finalScore}). Contacta al docente.`);
+                    return;
+                }
+            }
+
+            currentStudent = {
+                name: partner ? `${name} & ${partner}` : name,
+                docId, group,
+                attempts: existingRecord ? existingRecord.attempts + 1 : 1
+            };
+
+            activeQuestions = shuffleArray(originalQuestions).map(q => ({ ...q, options: shuffleArray(q.options) }));
+            currentQuestionIdx = 0;
+            userAnswers = [];
+            secondsElapsed = 0;
+
+            document.getElementById('screen-login').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('game-player-name').innerText = currentStudent.name;
+            startTimer();
+            renderQuestion();
+            playSound('next');
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+                const secs = String(secondsElapsed % 60).padStart(2, '0');
+                document.getElementById('game-timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function renderQuestion() {
+            const q = activeQuestions[currentQuestionIdx];
+            selectedOptionIdx = null;
+            document.getElementById('game-progress').innerText = `${currentQuestionIdx + 1}/10`;
+            document.getElementById('question-number-tag').innerText = `PREGUNTA ${String(currentQuestionIdx + 1).padStart(2, '0')}`;
+            document.getElementById('game-progress-bar').style.width = `${((currentQuestionIdx + 1) / 10) * 100}%`;
+            document.getElementById('question-text').innerText = q.question;
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            const prefixes = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-xl border-2 border-gray-700 bg-gray-800/80 hover:bg-gray-700/80 transition-all flex items-start gap-3 text-lg text-gray-200 option-btn`;
+                btn.onclick = () => selectOption(idx, btn);
+                btn.innerHTML = `
+                    <span class="font-arcade text-xs bg-cyan-900 border border-cyan-400 text-cyan-300 px-2 py-1 rounded shrink-0">${prefixes[idx]}</span>
+                    <span class="leading-snug">${opt.text}</span>
+                `;
+                container.appendChild(btn);
+            });
+
+            const nextBtn = document.getElementById('btn-next-q');
+            nextBtn.disabled = true;
+            nextBtn.className = "arcade-btn bg-gray-700 text-gray-400 font-arcade px-6 py-3 rounded-lg text-xs sm:text-sm flex items-center gap-2 cursor-not-allowed";
+        }
+
+        function selectOption(idx, btnElement) {
+            playSound('select');
+            selectedOptionIdx = idx;
+            document.querySelectorAll('.option-btn').forEach(b => {
+                b.classList.remove('border-yellow-400', 'bg-yellow-950/40', 'neon-border');
+                b.classList.add('border-gray-700', 'bg-gray-800/80');
+            });
+            btnElement.classList.remove('border-gray-700', 'bg-gray-800/80');
+            btnElement.classList.add('border-yellow-400', 'bg-yellow-950/40', 'neon-border');
+            const nextBtn = document.getElementById('btn-next-q');
+            nextBtn.disabled = false;
+            nextBtn.className = "arcade-btn bg-yellow-500 hover:bg-yellow-400 text-black font-arcade px-6 py-3 rounded-lg text-xs sm:text-sm flex items-center gap-2 cursor-pointer font-bold";
+        }
+
+        function submitAnswer() {
+            if (selectedOptionIdx === null) return;
+            playSound('next');
+            const q = activeQuestions[currentQuestionIdx];
+            userAnswers.push({ questionId: q.id, isCorrect: q.options[selectedOptionIdx].correct });
+            if (currentQuestionIdx < activeQuestions.length - 1) {
+                currentQuestionIdx++;
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyA1J3rJXTixVx_XS3YBAyau8PKi4ZFab317YP9D31uWYAXRqKbPgjWF7M5O_5H8mUaJA/exec';
+
+        function sendToSheets(record) {
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(record)
+            }).catch(err => console.log('Error enviando a Sheets:', err));
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            const correctCount = userAnswers.filter(a => a.isCorrect).length;
+            const incorrectCount = 10 - correctCount;
+            const scoreNum = 1.0 + (correctCount * 0.4);
+            const finalScore = scoreNum.toFixed(1);
+            const isPassed = scoreNum >= 3.0;
+
+            const db = getDatabase();
+            const record = {
+                name: currentStudent.name,
+                docId: currentStudent.docId,
+                group: currentStudent.group,
+                attempts: currentStudent.attempts,
+                correctCount,
+                finalScore: parseFloat(finalScore),
+                passed: isPassed,
+                timeSpent: document.getElementById('game-timer').innerText,
+                date: new Date().toLocaleString('es-CO')
+            };
+            db[currentStudent.docId] = record;
+            saveDatabase(db);
+            sendToSheets(record);
+
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+            document.getElementById('res-correct').innerText = `${correctCount} / 10`;
+            document.getElementById('res-incorrect').innerText = `${incorrectCount} / 10`;
+            document.getElementById('res-time').innerText = document.getElementById('game-timer').innerText;
+            document.getElementById('res-score').innerText = finalScore;
+
+            const headerBox = document.getElementById('result-header');
+            const badge = document.getElementById('res-status-badge');
+            const actionsBox = document.getElementById('results-actions');
+
+            if (isPassed) {
+                playSound('win');
+                headerBox.innerHTML = `
+                    <div class="text-4xl text-green-400 font-arcade neon-text-green animate-bounce">¡PRUEBA APROBADA!</div>
+                    <p class="text-2xl text-cyan-200">¡Excelente trabajo, técnico electro-digital!</p>
+                `;
+                badge.className = "inline-block px-4 py-1 rounded-full text-base font-bold bg-green-900 border border-green-400 text-green-300";
+                badge.innerText = "ESTADO: APROBADO";
+                actionsBox.innerHTML = `
+                    <button onclick="location.reload()" class="arcade-btn bg-cyan-600 hover:bg-cyan-500 text-white font-arcade px-6 py-3 rounded-xl text-xs sm:text-sm">
+                        <i class="fa-solid fa-house"></i> VOLVER AL INICIO
+                    </button>
+                `;
+            } else {
+                playSound('fail');
+                headerBox.innerHTML = `
+                    <div class="text-4xl text-red-500 font-arcade neon-text-pink">¡PRUEBA NO APROBADA!</div>
+                    <p class="text-2xl text-yellow-300">Necesitas mínimo 3.0 para aprobar este módulo.</p>
+                `;
+                badge.className = "inline-block px-4 py-1 rounded-full text-base font-bold bg-red-900 border border-red-400 text-red-300";
+                badge.innerText = "ESTADO: REPROBADO";
+                if (currentStudent.attempts < 2) {
+                    actionsBox.innerHTML = `
+                        <button onclick="handleRetry()" class="arcade-btn bg-yellow-500 hover:bg-yellow-400 text-black font-arcade px-6 py-3 rounded-xl text-xs sm:text-sm font-bold">
+                            <i class="fa-solid fa-rotate-right"></i> INTENTO 2/2 DE PRUEBA
+                        </button>
+                        <button onclick="location.reload()" class="arcade-btn bg-gray-700 hover:bg-gray-600 text-white font-arcade px-6 py-3 rounded-xl text-xs sm:text-sm">VOLVER</button>
+                    `;
+                } else {
+                    actionsBox.innerHTML = `
+                        <div class="text-red-400 text-xl w-full mb-2">Has completado tus 2 intentos máximos.</div>
+                        <button onclick="location.reload()" class="arcade-btn bg-gray-700 hover:bg-gray-600 text-white font-arcade px-6 py-3 rounded-xl text-xs sm:text-sm">VOLVER AL INICIO</button>
+                    `;
+                }
+            }
+        }
+
+        function handleRetry() {
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-login').classList.remove('hidden');
+            document.getElementById('std-name').value = currentStudent.name.split(' & ')[0];
+            document.getElementById('std-id').value = currentStudent.docId;
+        }
+
+        function openTeacherModal() { document.getElementById('modal-teacher').classList.remove('hidden'); }
+        function closeTeacherModal() { document.getElementById('modal-teacher').classList.add('hidden'); }
+
+        function authenticateTeacher() {
+            const pass = document.getElementById('teacher-pass').value;
+            if (pass === 'profemoncayo' || pass === 'itm10' || pass === '1234') {
+                document.getElementById('teacher-auth-box').classList.add('hidden');
+                document.getElementById('teacher-content-box').classList.remove('hidden');
+                document.getElementById('teacher-auth-error').classList.add('hidden');
+                renderTeacherTable();
+            } else {
+                document.getElementById('teacher-auth-error').classList.remove('hidden');
+            }
+        }
+
+        function renderTeacherTable() {
+            const db = getDatabase();
+            const tbody = document.getElementById('teacher-table-body');
+            tbody.innerHTML = '';
+            const records = Object.values(db);
+            document.getElementById('teacher-total-count').innerText = records.length;
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center p-6 text-gray-500">No hay registros de estudiantes aún.</td></tr>`;
+                return;
+            }
+            records.forEach(rec => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-800/50";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-cyan-300">${rec.name}</td>
+                    <td class="p-3 font-mono">${rec.docId}</td>
+                    <td class="p-3">${rec.group}</td>
+                    <td class="p-3 text-center">${rec.attempts}/2</td>
+                    <td class="p-3 text-center text-green-400 font-bold">${rec.correctCount}/10</td>
+                    <td class="p-3 text-center font-arcade text-yellow-400 text-base">${rec.finalScore.toFixed(1)}</td>
+                    <td class="p-3 text-center">
+                        <span class="px-2 py-0.5 rounded text-xs font-bold ${rec.passed ? 'bg-green-900/80 text-green-300 border border-green-500' : 'bg-red-900/80 text-red-300 border border-red-500'}">
+                            ${rec.passed ? 'APROBADO' : 'REPROBADO'}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center text-xs text-gray-400">${rec.date}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="deleteRecord('${rec.docId}')" class="text-red-400 hover:text-red-200 text-base px-2 py-1 rounded" title="Borrar para reiniciar intento">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteRecord(docId) {
+            if (confirm(`¿Estás seguro de reiniciar el registro del estudiante con ID ${docId}?`)) {
+                const db = getDatabase();
+                delete db[docId];
+                saveDatabase(db);
+                renderTeacherTable();
+            }
+        }
+
+        function clearAllRecords() {
+            if (confirm("⚠️ ¿ATENCIÓN: Quieres borrar TODOS los registros de calificaciones? Esta acción no se puede deshacer.")) {
+                localStorage.removeItem('electro_quiz_mod1_db');
+                renderTeacherTable();
+            }
+        }
+
+        function exportToCSV() {
+            const db = getDatabase();
+            const records = Object.values(db);
+            if (records.length === 0) { alert("No hay registros para exportar."); return; }
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Estudiante,Documento_ID,Grupo,Intentos,Aciertos_de_10,Nota_Final,Estado,Tiempo,Fecha_Hora\n";
+            records.forEach(r => {
+                const nameEscaped = `"${r.name.replace(/"/g, '""')}"`;
+                const state = r.passed ? "APROBADO" : "REPROBADO";
+                csvContent += `${nameEscaped},${r.docId},${r.group},${r.attempts},${r.correctCount},${r.finalScore.toFixed(1)},${state},${r.timeSpent},"${r.date}"\n`;
+            });
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", `Calificaciones_Modulo1_Electrotecnia_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
